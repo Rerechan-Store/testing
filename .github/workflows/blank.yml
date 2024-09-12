@@ -13,13 +13,32 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-- name: Install Xray
-  run: |
-    curl -L -o xray.tar.gz https://github.com/XTLS/Xray-core/releases/download/v1.9.0/xray-linux-amd64-v1.9.0.tar.gz
-    tar -xzvf xray.tar.gz
-    sudo mv xray /usr/local/bin/
-    sudo chmod +x /usr/local/bin/xray
-    
+    - name: Install Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y wget tar
+
+    - name: Download Xray
+      run: |
+        wget https://github.com/XTLS/Xray-core/releases/download/v1.9.0/xray-linux-amd64-v1.9.0.tar.gz -O xray.tar.gz
+
+    - name: Check File Format
+      run: |
+        file xray.tar.gz
+
+    - name: Extract Xray
+      run: |
+        tar -xzvf xray.tar.gz
+
+    - name: Move Xray Binary
+      run: |
+        sudo mv xray /usr/local/bin/
+        sudo chmod +x /usr/local/bin/xray
+
+    - name: List Files
+      run: |
+        ls -l
+
     - name: Run Xray
       run: |
         xray -c config.json
