@@ -1,44 +1,126 @@
 {
-  "outbounds": [
+  "stats": {},
+  "policy": {
+    "levels": {
+      "0": {
+        "statsUserUplink": true,
+        "statsUserDownlink": true
+      }
+    },
+    "system": {
+      "statsInboundUplink": true,
+      "statsInboundDownlink": true,
+      "statsOutboundUplink": true,
+      "statsOutboundDownlink": true
+    }
+  },
+  "inbounds": [
     {
+      "listen": "127.0.0.1",
+      "port": 62789,
+      "protocol": "dokodemo-door",
+      "settings": {
+        "address": "127.0.0.1"
+      },
+      "tag": "api"
+    },
+    {
+      "port": 80,
+      "protocol": "vless",
+      "settings": {
+        "clients": [
+          {
+            "id": "9223b8ce-3e06-44da-8b71-0f258289d442"
+          }
+        ],
+        "fallbacks": [
+          {
+            "path": "/vmess",
+            "dest": "@vmess-ws",
+            "xver": 2
+          }
+        ],
+        "decryption": "none"
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      }
+    },
+    {
+      "listen": "@vmess-ws",
       "protocol": "vmess",
       "settings": {
-        "vnext": [
+        "clients": [
           {
-            "address": "127.0.0.1",
-            "port": 80,
-            "users": [
-              {
-                "id": "your-uuid",
-                "alterId": 0,
-                "security": "none"
-              }
-            ]
+            "email": "general@vmess-ws",
+            "id": "9223b8ce-3e06-44da-8b71-0f258289d442",
+            "level": 0
           }
         ]
       },
       "streamSettings": {
         "network": "ws",
+        "security": "none",
         "wsSettings": {
-          "path": "/vmessws"
+          "acceptProxyProtocol": true,
+          "path": "/vmess"
         }
-      }
-    }
-  ],
-  "inbounds": [
-    {
-      "port": 1080,
-      "protocol": "socks",
-      "settings": {
-        "auth": "noauth",
-        "udp": true
+      },
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
       }
     }
   ],
   "outbounds": [
     {
-      "protocol": "freedom",
-      "settings": {}
+      "tag": "default",
+      "protocol": "freedom"
+    },
+    {
+      "protocol": "blackhole",
+      "tag": "blocked"
+    },
+    {
+      "tag": "DNS-Internal",
+      "protocol": "dns",
+      "settings": {
+        "address": "127.0.0.53",
+        "port": 53
+      }
     }
-  ]
+  ],
+  "routing": {
+    "domainStrategy": "AsIs",
+    "rules": [
+      {
+        "inboundTag": [
+          "api"
+        ],
+        "outboundTag": "api",
+        "type": "field"
+      },
+      {
+        "type": "field",
+        "outboundTag": "blocked",
+        "ip": [
+          "geoip:private"
+        ]
+      },
+      {
+        "type": "field",
+        "outboundTag": "blocked",
+        "protocol": [
+          "bittorrent"
+        ]
+      }
+    ]
+  }
 }
