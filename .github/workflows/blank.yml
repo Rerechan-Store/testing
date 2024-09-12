@@ -1,0 +1,24 @@
+name: Run Xray
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install Xray
+      run: |
+        curl -L https://github.com/XTLS/Xray-core/releases/download/v1.8.0/xray-linux-amd64-v1.8.0.tar.gz | tar xz
+        sudo mv xray /usr/local/bin/
+        sudo chmod +x /usr/local/bin/xray
+
+    - name: Run Xray
+      run: |
+        xray -c config.json
