@@ -30,10 +30,15 @@ jobs:
     - name: List Files
       run: |
         ls -l
+        touch xray.log
 
-    - name: Run Xray
+    - name: Run Xray in Background
       run: |
-        xray -c config.json &
+        nohup xray -c config.json > xray.log 2>&1 &
+
+    - name: Verify Xray is Running
+      run: |
+        ps aux | grep xray
 
     - name: Get Runner IP
       run: |
